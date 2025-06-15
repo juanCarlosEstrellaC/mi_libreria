@@ -1,7 +1,9 @@
 package com.programacion.distribuida.mi_libreria.rest;
 
 import com.programacion.distribuida.mi_libreria.db.Autor;
+import com.programacion.distribuida.mi_libreria.db.Libro;
 import com.programacion.distribuida.mi_libreria.repository.IAutorRepository;
+import com.programacion.distribuida.mi_libreria.repository.ILibroRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -17,6 +19,9 @@ public class AutorRest {
 
     @Autowired
     private IAutorRepository autorRepository;
+
+    @Autowired
+    private ILibroRepository libroRepository;
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Autor>> buscarTodos() {
@@ -35,12 +40,28 @@ public class AutorRest {
 
     @PutMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Autor> actualizar(@PathVariable Long id, @RequestBody Autor autor) {
-        if (this.autorRepository.existsById(id)) {
-            autor.setId(id);
-            return ResponseEntity.status(HttpStatus.OK).body(this.autorRepository.save(autor));
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+        return autorRepository.findById(id).map(autorExistente -> {
+            autorExistente.setNombre(autor.getNombre());
+            autorExistente.setVersion(autor.getVersion());
+
+            // Limpiar libros actuales
+            autorExistente.getLibros().clear();
+
+            // Asociar nuevos libros
+            if (autor.getLibros() != null) {
+                for (Libro libro : autor.getLibros()) {
+                    // Recuperar libro gestionado
+                    Libro libroBD = libroRepository.findById(libro.getId()).orElse(null);
+                    if (libroBD != null) {
+                        autorExistente.getLibros().add(libroBD);
+                        libroBD.getAutores().add(autorExistente); // sincronizar lado inverso
+                    }
+                }
+            }
+
+            autorRepository.save(autorExistente);
+            return ResponseEntity.ok(autorExistente);
+        }).orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping(path = "/{id}")

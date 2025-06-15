@@ -2,10 +2,12 @@ package com.programacion.distribuida.mi_libreria.db;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.Set;
 
 @Data
+@EqualsAndHashCode(exclude = "libros")
 @Entity
 @Table(name = "autores")
 public class Autor {
@@ -23,4 +25,5 @@ public class Autor {
 
     @ManyToMany(mappedBy = "autores", cascade = CascadeType.ALL)
     private Set<Libro> libros;
+
 }

@@ -2,11 +2,13 @@ package com.programacion.distribuida.mi_libreria.db;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.List;
 import java.util.Set;
 
 @Data
+@EqualsAndHashCode(exclude = "autores")
 @Entity
 @Table(name = "libros")
 public class Libro {
@@ -35,4 +37,7 @@ public class Libro {
         inverseJoinColumns = @JoinColumn(name = "autor_id", referencedColumnName = "autor_id")
     )
     private Set<Autor> autores;
+
+    @OneToOne(mappedBy = "libro", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Inventario inventario;
 }
