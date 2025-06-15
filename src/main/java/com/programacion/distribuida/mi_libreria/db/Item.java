@@ -8,22 +8,20 @@ import lombok.Data;
 @Table(name = "items")
 public class Item {
 
-    // Creo que falta asignar el valor de id a la columna item_id_compuesto!
-
     @EmbeddedId
     private ItemIdCompuesto idCompuesto;
 
     @ManyToOne
-    @MapsId("ordenId")
+    @MapsId("libroId")
+    @JoinColumn(name = "item_libro_id", referencedColumnName = "libro_id")
+    private Libro libro;
+
+    @ManyToOne
+    @MapsId("ordenCompraId")
     @JoinColumn(name = "item_orden_id", referencedColumnName = "orden_id")
     private OrdenDeCompra ordenDeCompra;
 
     @Column(name = "item_cantidad")
     private Integer cantidad;
-
-    @ManyToOne
-    @MapsId("id")
-    @JoinColumn(name = "item_libro_id", referencedColumnName = "libro_id")
-    private Libro libro;
 
 }

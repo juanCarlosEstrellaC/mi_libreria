@@ -9,6 +9,7 @@ import java.io.Serializable;
 @Embeddable
 public class ItemIdCompuesto implements Serializable {
 
-    private Long id;
-    private Long ordenId;
+    private Long libroId;
+    private Long ordenCompraId;
+
 }
